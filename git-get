@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# We will blithely assume that the last argument is the repository
+dir=${!#}
+
+dir=$(echo $dir | sed -e 's/^.*:\/\///')
+dir=$(echo $dir | sed -e 's/^.*@//')
+dir="~/code/$dir"
+
+git clone $@ $dir
