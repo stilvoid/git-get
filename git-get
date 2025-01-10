@@ -12,8 +12,8 @@ fi
 
 repo="$1"
 
-if [ -z "$repo" ]; then
-    echo "Usage git get <repository>"
+if [ -z "$repo" ] || [ "$repo" == "-h" ]; then
+    echo "Usage: git get <repository>"
     echo
     echo "  git-get clones <repository> into a folder derived from the repository URL"
     echo
@@ -22,7 +22,12 @@ if [ -z "$repo" ]; then
     echo
     echo "  You can override the default base path (~/code) with"
     echo "  git config --global get.loation \"/path/to/your/code\""
-    exit 1
+
+    if [ "$repo" == "-h" ]; then
+        exit
+    else
+        exit 1
+    fi
 fi
 
 # Strip scheme
