@@ -1,17 +1,42 @@
 #!/bin/bash
 
-base_dir=$(git config get.location)
+base_dir="$(git config get.location)"
 
 if [ -z "$base_dir" ]; then
-    base_dir=~/code
+    base_dir="$HOME/code"
+else
+    # Replace a tilde with $HOME
+    base_dir="${base_dir/#~/$HOME}"
 fi
 
-# We will blithely assume that the last argument is the repository
-dir=${!#}
 
-dir=$(echo $dir | sed -e 's/^.*:\/\///')
-dir=$(echo $dir | sed -e 's/^.*@//')
-dir=$(echo $dir | sed -e 's/:/\//g')
-dir="$base_dir/$dir"
+repo="$1"
 
-git clone $@ $dir
+if [ -z "$repo" ]; then
+    echo "Usage git get <repository>"
+    echo
+    echo "  git-get clones <repository> into a folder derived from the repository URL"
+    echo
+    echo "  For example, git get git@github.com:stilvoid/git-get.git"
+    echo "  will be checkout into ~/code/github.com/stilvoid/git-get.git"
+    echo
+    echo "  You can override the default base path (~/code) with"
+    echo "  git config --global get.loation \"/path/to/your/code\""
+    exit 1
+fi
+
+# Strip scheme
+dir="${repo#*://}"
+
+# Strip username
+dir="${dir#*@}"
+
+# Replace : with /
+dir="${dir/://}"
+
+# Remove .git
+dir="${dir%.git}"
+
+dir="${base_dir}/${dir}"
+
+git clone "$repo" "$dir"
