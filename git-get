@@ -1,19 +1,9 @@
 #!/bin/bash
 
-base_dir="$(git config get.location)"
+set -eu -o pipefail
 
-if [ -z "$base_dir" ]; then
-    base_dir="$HOME/code"
-else
-    # Replace a tilde with $HOME
-    base_dir="${base_dir/#~/$HOME}"
-fi
-
-
-repo="$1"
-
-if [ -z "$repo" ] || [ "$repo" == "-h" ]; then
-    echo "Usage: git get <repository>"
+function print_help {
+    echo "Usage: git get [--print-path] <repository> [<args>]"
     echo
     echo "  git-get clones <repository> into a folder derived from the repository URL"
     echo
@@ -22,16 +12,62 @@ if [ -z "$repo" ] || [ "$repo" == "-h" ]; then
     echo
     echo "  You can override the default base path (~/code) with"
     echo "  git config --global get.loation \"/path/to/your/code\""
+    echo
+    echo "  --print-path will print out the full path that the repository would be clone into"
+    echo "  and then exits immediately without cloning"
+    echo
+    echo "  Any other arguments are passed to the \"git clone\" command"
+}
 
-    if [ "$repo" == "-h" ]; then
-        exit
-    else
-        exit 1
-    fi
+# Set base directory for git checkout
+base_dir="$(git config get.location || true)"
+
+if [ -z "$base_dir" ]; then
+    base_dir="$HOME/code"
+else
+    # Replace a tilde with $HOME
+    base_dir="${base_dir/#~/$HOME}"
+fi
+
+# Parse CLI opts
+COMMAND="checkout"
+REPO=""
+EXTRA_ARGS=()
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --print-path)
+            COMMAND="print"
+            shift
+            ;;
+        -h|--help)
+            print_help
+            exit
+            ;;
+        -*)
+            EXTRA_ARGS+=("$1")
+            shift
+            ;;
+        *)
+            if [ -z "$REPO" ]; then
+                REPO="$1"
+            else
+                EXTRA_ARGS+=("$1")
+            fi
+            shift
+            ;;
+    esac
+done
+
+GIT_ARGS="${EXTRA_ARGS[*]+"${EXTRA_ARGS[*]}"}"
+
+if [ -z "$REPO" ] ; then
+    print_help
+    exit 1
 fi
 
 # Strip scheme
-dir="${repo#*://}"
+dir="${REPO#*://}"
 
 # Strip username
 dir="${dir#*@}"
@@ -44,4 +80,11 @@ dir="${dir%.git}"
 
 dir="${base_dir}/${dir}"
 
-git clone "$repo" "$dir"
+if [ "$COMMAND" == "print" ]; then
+    echo "$dir"
+    exit
+fi
+
+CMD="git clone $GIT_ARGS -- \"$REPO\" \"$dir\""
+
+eval "$CMD"
