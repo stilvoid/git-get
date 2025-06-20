@@ -6,7 +6,9 @@ git-get is a simple wrapper for `git clone` that clones your repository into a s
 
 ## Installing
 
-Just put `git-get` somewhere in your path :)
+`brew install stilvoid/tools/please`
+
+Or just put `git-get` somewhere in your path :)
 
 ## Usage
 
