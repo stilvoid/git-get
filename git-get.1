@@ -1,9 +1,11 @@
 .TH "GIT\-GET" "1" "2025-01-10" "https://github.com/stilvoid/git-get" "Git Manual"
 .SH NAME
-git-git \- clone a git repository into a folder structure derived from the repository URL
+git-get \- clone a git repository into a folder structure derived from the repository URL
 .SH SYNOPSIS
 .B git-get
+[\fB\-h\fR | \fB\-\-help\fR | \fB\-\-print\-path\fR]
 .IR repository
+[\fIargs\fR...]
 .SH DESCRIPTION
 .Nm
 clones
@@ -11,7 +13,22 @@ clones
 into a folder derived from the repository URL by removing the scheme (e.g. \fIhttps://\fR),
 the username (e.g. \fIgit@\fR),
 and the suffix \fI.git\fR if it exists.
-.SH EXAMPLE
+.SH OPTIONS
+.TP
+.B \-\-print\-path
+Print the full path where the repository would be cloned and exit without cloning.
+.TP
+.B \-h, \-\-help
+Show help message and exit.
+.PP
+Any additional arguments are passed directly to the \fBgit clone\fR command.
+.SH CONFIGURATION
+You can override the default base path (\fI~/code\fR) with:
+.PP
+.RS
+$ git config --global get.location "/path/to/your/code"
+.RE
+.SH EXAMPLES
 .PP
 Clone the git-get repository:
 .PP
@@ -31,10 +48,8 @@ will both result in the repository being checked out to
 $HOME/code/github.com/stilvoid/git-get
 .RE
 .PP
-You can override the default base path (
-.I ~/code
-) with:
+Preview where a repository would be cloned:
 .PP
 .RS
-$ git config --global get.loation "/path/to/your/code"
+$ git get --print-path https://github.com/stilvoid/git-get.git
 .RE

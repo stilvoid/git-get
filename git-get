@@ -8,13 +8,15 @@ function print_help {
     echo "  git-get clones <repository> into a folder derived from the repository URL"
     echo
     echo "  For example, git get git@github.com:stilvoid/git-get.git"
-    echo "  will be checkout into ~/code/github.com/stilvoid/git-get.git"
+    echo "  will be cloned into ~/code/github.com/stilvoid/git-get"
     echo
     echo "  You can override the default base path (~/code) with"
-    echo "  git config --global get.loation \"/path/to/your/code\""
+    echo "  git config --global get.location \"/path/to/your/code\""
     echo
-    echo "  --print-path will print out the full path that the repository would be clone into"
+    echo "  --print-path will print out the full path that the repository would be cloned into"
     echo "  and then exits immediately without cloning"
+    echo
+    echo "  -h, --help show this help message and exit"
     echo
     echo "  Any other arguments are passed to the \"git clone\" command"
 }
@@ -85,6 +87,9 @@ if [ "$COMMAND" == "print" ]; then
     exit
 fi
 
+echo "Cloning into '$dir'..."
 CMD="git clone $GIT_ARGS -- \"$REPO\" \"$dir\""
 
 eval "$CMD"
+
+echo "Successfully cloned to: $dir"
