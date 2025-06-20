@@ -3,7 +3,7 @@
 git-get \- clone a git repository into a folder structure derived from the repository URL
 .SH SYNOPSIS
 .B git-get
-[\fB\-h\fR | \fB\-\-help\fR | \fB\-\-print\-path\fR]
+[\fB\-h\fR | \fB\-\-help\fR | \fB\-\-print\-path\fR | \fB\-\-location\fR \fIdir\fR]
 .IR repository
 [\fIargs\fR...]
 .SH DESCRIPTION
@@ -17,6 +17,9 @@ and the suffix \fI.git\fR if it exists.
 .TP
 .B \-\-print\-path
 Print the full path where the repository would be cloned and exit without cloning.
+.TP
+.B \-\-location \fIdir\fR
+Override the base directory for this clone only.
 .TP
 .B \-h, \-\-help
 Show help message and exit.
@@ -52,4 +55,10 @@ Preview where a repository would be cloned:
 .PP
 .RS
 $ git get --print-path https://github.com/stilvoid/git-get.git
+.RE
+.PP
+Override the base directory for one clone:
+.PP
+.RS
+$ git get --location ~/temp git@github.com:stilvoid/git-get.git
 .RE

@@ -11,7 +11,7 @@ Just put `git-get` somewhere in your path :)
 ## Usage
 
 ```
-git get [--print-path] <repository> [<args>]
+git get [--print-path] [--location <dir>] <repository> [<args>]
 ```
 
 ### Arguments
@@ -22,6 +22,7 @@ git get [--print-path] <repository> [<args>]
 ### Options
 
 - `--print-path` - Print the full path where the repository would be cloned and exit without cloning
+- `--location <dir>` - Override the base directory for this clone only
 - `-h, --help` - Show help message and exit
 
 ## Examples
@@ -60,4 +61,28 @@ By default, git-get places all repositories under `~/code` but you can change th
 
 ```shell
 git config --global get.location ~/projects
+```
+
+### Additional Examples
+
+```shell
+# See where a repository would be cloned without actually cloning
+git get --print-path https://github.com/stilvoid/git-get
+
+# Override the base directory for one clone only
+git get --location ~/temp https://github.com/stilvoid/git-get
+# → ~/temp/github.com/stilvoid/git-get
+
+# Preview where a repository would be cloned with a custom location
+git get --location ~/projects --print-path git@github.com:user/repo.git
+# → ~/projects/github.com/user/repo
+
+# Show help and usage information
+git get --help
+
+# Pass additional arguments to git clone (shallow clone)
+git get --depth 1 https://github.com/stilvoid/git-get
+
+# Clone a specific branch
+git get --branch main https://github.com/stilvoid/git-get
 ```

@@ -3,7 +3,7 @@
 set -eu -o pipefail
 
 function print_help {
-    echo "Usage: git get [--print-path] <repository> [<args>]"
+    echo "Usage: git get [--print-path] [--location <dir>] <repository> [<args>]"
     echo
     echo "  git-get clones <repository> into a folder derived from the repository URL"
     echo
@@ -16,31 +16,32 @@ function print_help {
     echo "  --print-path will print out the full path that the repository would be cloned into"
     echo "  and then exits immediately without cloning"
     echo
+    echo "  --location <dir> override the base directory for this clone only"
+    echo
     echo "  -h, --help show this help message and exit"
     echo
     echo "  Any other arguments are passed to the \"git clone\" command"
 }
 
-# Set base directory for git checkout
-base_dir="$(git config get.location || true)"
-
-if [ -z "$base_dir" ]; then
-    base_dir="$HOME/code"
-else
-    # Replace a tilde with $HOME
-    base_dir="${base_dir/#~/$HOME}"
-fi
-
 # Parse CLI opts
 COMMAND="checkout"
 REPO=""
 EXTRA_ARGS=()
+OVERRIDE_LOCATION=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
         --print-path)
             COMMAND="print"
             shift
+            ;;
+        --location)
+            if [ $# -lt 2 ] || [ -z "${2:-}" ]; then
+                echo "Error: --location requires a directory path"
+                exit 1
+            fi
+            OVERRIDE_LOCATION="$2"
+            shift 2
             ;;
         -h|--help)
             print_help
@@ -68,6 +69,22 @@ if [ -z "$REPO" ] ; then
     exit 1
 fi
 
+# Set base directory for git checkout
+if [ -n "$OVERRIDE_LOCATION" ]; then
+    # Use override location, expanding tilde if present
+    base_dir="${OVERRIDE_LOCATION/#~/$HOME}"
+else
+    # Use configured or default location
+    base_dir="$(git config get.location || true)"
+    
+    if [ -z "$base_dir" ]; then
+        base_dir="$HOME/code"
+    else
+        # Replace a tilde with $HOME
+        base_dir="${base_dir/#~/$HOME}"
+    fi
+fi
+
 # Strip scheme
 dir="${REPO#*://}"
 
@@ -79,6 +96,9 @@ dir="${dir/://}"
 
 # Remove .git
 dir="${dir%.git}"
+
+# Remove trailing slash from base_dir if present
+base_dir="${base_dir%/}"
 
 dir="${base_dir}/${dir}"
 
